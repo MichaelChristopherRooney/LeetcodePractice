@@ -1,11 +1,13 @@
-#include <iostream>
-#include <list>
+#include <array>
+#include <string>
 
 struct Node {
 	// The problem specifies only lowercase English letters, so we can use an
 	// array with a size of 26. From experimenting, this is slightly faster than
 	// using a std::list (16ms vs 18ms), but with slightly higher memory usage
 	// (50.5MB vs 33.6MB).
+	// Note for this exercise raw pointers are used, but in production a safer
+	// option should be considered, such as unique_ptr.
 	std::array<Node *, 26> nodes{nullptr};
 	bool isComplete = false;
 };
@@ -16,7 +18,7 @@ public:
 
 	}
 
-	void insert(std::string word) {
+	void insert(const std::string &word) {
 		auto cur = &m_Root;
 		for(const auto originalC : word) {
 			const auto c = originalC - 'a';
@@ -28,7 +30,7 @@ public:
 		cur->isComplete = true;
 	}
 
-	bool search(std::string word) {
+	bool search(const std::string &word) {
 		auto cur = &m_Root;
 		for(const auto originalC : word) {
 			const auto c = originalC - 'a';
@@ -40,7 +42,7 @@ public:
 		return cur->isComplete;
 	}
 
-	bool startsWith(std::string prefix) {
+	bool startsWith(const std::string &prefix) {
 		auto cur = &m_Root;
 		for(const auto originalC : prefix) {
 			const auto c = originalC - 'a';
@@ -55,14 +57,3 @@ public:
 private:
 	Node m_Root;
 };
-
-
-int main() {
-	std::cout << "Hello, World!" << std::endl;
-	Trie* obj = new Trie();
-	obj->insert("apple");
-	const auto apple = obj->search("apple");
-	const auto appSearch = obj->search("app");
-	const auto appStartsWith = obj->startsWith("app");
-	return 0;
-}
