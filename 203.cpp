@@ -1,10 +1,13 @@
 #include <iostream>
 #include <list>
 
-struct Element {
-	std::list<Element> subElements;
-	char c;
-	bool complete = false;
+struct Node {
+	// The problem specifies only lowercase English letters, so we can use an
+	// array with a size of 26. From experimenting, this is slightly faster than
+	// using a std::list (16ms vs 18ms), but with slightly higher memory usage
+	// (50.5MB vs 33.6MB).
+	std::array<Node *, 26> nodes{nullptr};
+	bool isComplete = false;
 };
 
 class Trie {
@@ -14,54 +17,43 @@ public:
 	}
 
 	void insert(std::string word) {
-		Element *cur = &m_RootElements;
-		for(const auto c : word) {
-			auto match = std::find_if(cur->subElements.begin(), cur->subElements.end(), [c](const Element &e) {
-				return e.c == c;
-			});
-			if(match == cur->subElements.end()) {
-				cur = &cur->subElements.emplace_back(Element {
-					.subElements = std::list<Element>(),
-					.c = c,
-					.complete = false
-				});
-			} else {
-				cur = &(*match);
+		auto cur = &m_Root;
+		for(const auto originalC : word) {
+			const auto c = originalC - 'a';
+			if(cur->nodes[c] == nullptr) {
+				cur->nodes[c] = new Node();
 			}
+			cur = cur->nodes[c];
 		}
-		cur->complete = true;
+		cur->isComplete = true;
 	}
 
 	bool search(std::string word) {
-		Element *cur = &m_RootElements;
-		for(const auto c : word) {
-			auto match = std::find_if(cur->subElements.begin(), cur->subElements.end(), [c](const Element &e) {
-				return e.c == c;
-			});
-			if(match == cur->subElements.end()) {
+		auto cur = &m_Root;
+		for(const auto originalC : word) {
+			const auto c = originalC - 'a';
+			if(cur->nodes[c] == nullptr) {
 				return false;
 			}
-			cur = &(*match);
+			cur = cur->nodes[c];
 		}
-		return cur->complete;
+		return cur->isComplete;
 	}
 
 	bool startsWith(std::string prefix) {
-		Element *cur = &m_RootElements;
-		for(const auto c : prefix) {
-			auto match = std::find_if(cur->subElements.begin(), cur->subElements.end(), [c](const Element &e) {
-				return e.c == c;
-			});
-			if(match == cur->subElements.end()) {
+		auto cur = &m_Root;
+		for(const auto originalC : prefix) {
+			const auto c = originalC - 'a';
+			if(cur->nodes[c] == nullptr) {
 				return false;
 			}
-			cur = &(*match);
+			cur = cur->nodes[c];
 		}
 		return true;
 	}
 
 private:
-	Element m_RootElements;
+	Node m_Root;
 };
 
 
