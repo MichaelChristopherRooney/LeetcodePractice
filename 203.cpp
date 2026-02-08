@@ -1,8 +1,10 @@
 #include <iostream>
+#include <list>
 
 struct Element {
-	std::array<std::unique_ptr<Element>, 256> subElements;
-	bool complete;
+	std::list<Element> subElements;
+	char c;
+	bool complete = false;
 };
 
 class Trie {
@@ -14,10 +16,18 @@ public:
 	void insert(std::string word) {
 		Element *cur = &m_RootElements;
 		for(const auto c : word) {
-			if(cur->subElements[c] == nullptr) {
-				cur->subElements[c] = std::make_unique<Element>();
+			auto match = std::find_if(cur->subElements.begin(), cur->subElements.end(), [c](const Element &e) {
+				return e.c == c;
+			});
+			if(match == cur->subElements.end()) {
+				cur = &cur->subElements.emplace_back(Element {
+					.subElements = std::list<Element>(),
+					.c = c,
+					.complete = false
+				});
+			} else {
+				cur = &(*match);
 			}
-			cur = cur->subElements[c].get();
 		}
 		cur->complete = true;
 	}
@@ -25,10 +35,13 @@ public:
 	bool search(std::string word) {
 		Element *cur = &m_RootElements;
 		for(const auto c : word) {
-			if(cur->subElements[c] == nullptr) {
+			auto match = std::find_if(cur->subElements.begin(), cur->subElements.end(), [c](const Element &e) {
+				return e.c == c;
+			});
+			if(match == cur->subElements.end()) {
 				return false;
 			}
-			cur = cur->subElements[c].get();
+			cur = &(*match);
 		}
 		return cur->complete;
 	}
@@ -36,10 +49,13 @@ public:
 	bool startsWith(std::string prefix) {
 		Element *cur = &m_RootElements;
 		for(const auto c : prefix) {
-			if(cur->subElements[c] == nullptr) {
+			auto match = std::find_if(cur->subElements.begin(), cur->subElements.end(), [c](const Element &e) {
+				return e.c == c;
+			});
+			if(match == cur->subElements.end()) {
 				return false;
 			}
-			cur = cur->subElements[c].get();
+			cur = &(*match);
 		}
 		return true;
 	}
