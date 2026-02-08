@@ -1,45 +1,36 @@
 #include <string>
+#include <unordered_map>
 
 class Solution {
 public:
-	// Initial slow version for testing and reference.
 	std::string longestPalindrome(const std::string &s) {
+		// Single letter strings are also palindromes, so let's just use the first
+		// letter as a default result.
 		std::string best = std::string{s[0]};
-		for(int i = 0; i < s.length(); i++) {
-			const auto cStart = s[i];
-			// Find all matching characters starting from the end of the string.
-			for(int j = s.length() - 1; j != i; j--) {
-				if(s[j] != cStart) {
-					continue;
-				}
-				// TODO: if length is already less than the best match we can skip it.
-				const auto view = std::string_view(s.data() + i, j - i + 1);
-				if(!isPalindrome(view)) {
-					continue;
-				}
-				if(view.length() > best.length()) {
-					best = view;
-					break;
-				}
+		for(int i = 0; i < s.length() - 1; i++) {
+			// For each character, treat it as the center of a palindrome and
+			// expand from there while it is still a palindrome. The palinedrome
+			// may have an odd or even number of characters. For the odd case,
+			// we need to start centered on the same character, while for the
+			// even case we need to start centered on two adjacent characters.
+			const auto oddMatch = expandFromCenter(s, i, i);
+			if(oddMatch.length() > best.length()) {
+				best = oddMatch;
 			}
-
+			const auto evenMatch = expandFromCenter(s, i, i + 1);
+			if(evenMatch.length() > best.length()) {
+				best = evenMatch;
+			}
 		}
 		return best;
 	}
 
 private:
-	bool isPalindrome(const std::string_view &s) {
-		for(int i = 0; i < s.length() / 2; i++) {
-			if(s[i] != s[s.length() - 1 - i]) {
-				return false;
-			}
+	std::string expandFromCenter(const std::string &s, int start, int end) {
+		while(start >= 0 && end < s.length() && s[start] == s[end]) {
+			start--;
+			end++;
 		}
-		return true;
+		return s.substr(start + 1, end - start - 1);
 	}
 };
-
-int main() {
-	Solution s;
-	const auto result = s.longestPalindrome("babad");
-	return 0;
-}
