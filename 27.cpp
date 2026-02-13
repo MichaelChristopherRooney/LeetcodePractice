@@ -2,26 +2,32 @@
 
 class Solution {
 public:
-	int removeDuplicates(std::vector<int>& nums) {
+	int removeElement(std::vector<int>& nums, int val) {
 		if(nums.size() == 1) {
+			if(nums[0] == val) {
+				return 0;
+			}
 			return 1;
 		}
-		std::vector<int> deduped;
-		for(int i = 0; i < nums.size(); i++) {
-			int val = nums[i];
-			while(i < nums.size() - 1 && nums[i + 1] == val) {
+		int resultSize = nums.size();
+		int swapIndex = nums.size() - 1;
+		int i = 0;
+		while(i <= swapIndex) {
+			if(nums[i] != val) {
 				i++;
+				continue;
 			}
-			deduped.emplace_back(val);
+			nums[i] = nums[swapIndex];
+			swapIndex--;
+			resultSize--;
 		}
-		nums = deduped;
-		return deduped.size();
+		return resultSize;
 	}
 };
 
 int main() {
-	std::vector<int> nums{1,1};
+	std::vector<int> nums{1, 1};
 	Solution s;
-	int k = s.removeDuplicates(nums);
+	int k = s.removeElement(nums, 1);
 	return 0;
 }
