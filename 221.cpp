@@ -1,79 +1,44 @@
 #include <vector>
-#include <unordered_map>
-#include <unordered_set>
-#include <string>
 
 class Solution {
 public:
-	int maximalSquare(std::vector<std::vector<char>>& matrix) {
+	int maximalSquare(const std::vector<std::vector<char>>& matrix) {
 		int xSize = matrix.size();
 		int ySize = matrix[0].size();
+		// Initialise DP matrix.
+		std::vector<std::vector<int>> dp;
+		dp.reserve(xSize);
+		for(int i = 0; i < xSize; i++) {
+			dp.emplace_back(ySize, 0);
+		}
 		int bestSize = 0;
-		maximalSquareRecursive(matrix, 0, 0, xSize, ySize, bestSize);
-		int a = 0;
+		for(int i = 0; i < xSize; i++) {
+			for(int j = 0; j < ySize; j++) {
+				if(matrix[i][j] == '0') {
+					continue;
+				}
+				int leftMin = 0;
+				int diagonalMin = 0;
+				int topMin = 0;
+				if(i > 0) {
+					leftMin = dp[i - 1][j];
+				}
+				if(j > 0) {
+					topMin = dp[i][j - 1];
+				}
+				if(i > 0 && j > 0) {
+					diagonalMin = dp[i - 1][j - 1];
+				}
+				const auto dpMin = std::min(std::min(leftMin, topMin), diagonalMin);
+				const int size = dpMin + 1;
+				dp[i][j] = size;
+				if(size > bestSize) {
+					bestSize = size;
+				}
+			}
+		}
 		return bestSize * bestSize;
 	}
-
-private:
-	bool isValidMatrix(std::vector<std::vector<char>>& matrix, int xStart, int yStart, int xSize, int ySize) {
-		for(int x = xStart; x < xStart + xSize; x++) {
-			for(int y = yStart; y < yStart + ySize; y++) {
-				if(matrix.at(x).at(y) == '0') {
-					return false;
-				}
-			}
-		}
-		return true;
-
-	}
-	void maximalSquareRecursive(
-			std::vector<std::vector<char>>& matrix,
-			int xStart,
-			int yStart,
-			int xSize,
-			int ySize,
-			int &bestSize) {
-		std::string key = std::to_string(xStart) + "_" + std::to_string(yStart) + "_" + std::to_string(xSize) + "_" + std::to_string(ySize);
-		if(alreadyVisited.contains(key)) {
-			return;
-		}
-		alreadyVisited.emplace(key);
-		if(xStart == 2 && yStart == 1 && xSize == 2 && ySize == 2) {
-			int a = 0;
-		}
-		if(xSize == ySize) {
-			if(isValidMatrix(matrix, xStart, yStart, xSize, ySize)) {
-				if(xSize > bestSize) {
-					bestSize = xSize;
-				}
-			}
-		}
-		// We started with the full matrix, so it should get smaller each iteration.
-
-		// First handle all permutations in the X axis.
-		// Can we make X side smaller by shrinking it?
-		if(xSize > 1) {
-			maximalSquareRecursive(matrix, xStart, yStart, xSize - 1, ySize, bestSize);
-		}
-		// Do we have room to move the X start right?
-		if(xStart + xSize < matrix.size()) {
-			maximalSquareRecursive(matrix, xStart + 1, yStart, xSize, ySize, bestSize);
-		}
-
-		// Now handle all permutations in the Y axis.
-		// Can we shrink up?
-		if(ySize > 1) {
-			maximalSquareRecursive(matrix, xStart, yStart, xSize, ySize - 1, bestSize);
-		}
-		// Do we have room to move the Y start down?
-		if(yStart + ySize < matrix[0].size()) {
-			maximalSquareRecursive(matrix, xStart, yStart + 1, xSize, ySize, bestSize);
-		}
-	}
-
-	// i-j-iLen-jLen
-	std::unordered_set<std::string> alreadyVisited;
-	std::unordered_map<std::string, int> subMatrixSizes;
 };
 
 int main() {
