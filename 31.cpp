@@ -6,59 +6,55 @@ public:
 		if(nums.size() == 1) {
 			return;
 		}
-		int pivot = nums.size() - 1;
+		int leftSwapIndex = nums.size() - 1;
 		for(int i = nums.size() - 1; i > 0; i--) {
+			leftSwapIndex--;
 			if(nums[i - 1] < nums[i]) {
 				break;
 			}
-			pivot--;
 		}
-		bool pivotSwapped = false;
-		int firstSwapIndex = 0;
-		// If pivot is 0, then the largest value is already in index 0. In this
-		// case we skip the pivot swap
-		if(pivot != 0) {
-			// First of all try find the smallest number after the pivot that
-			// is greater t number before the pivot.
-			int smallest = 0;
-			bool matchFound = false;
-			for(int i = pivot; i < nums.size(); i++) {
-				int v = nums[i];
-				if(v > nums[pivot - 1] && (!matchFound || smallest > v)) {
-					matchFound = true;
-					smallest = v;
-					firstSwapIndex = i;
-				}
+		// Find the smallest number after the left swap index that is greater
+		// that the left swap value.
+		int rightSwapIndex = 0;
+		for(int i = nums.size() - 1; i > leftSwapIndex; i--) {
+			if(nums[i] > nums[leftSwapIndex]) {
+				rightSwapIndex = i;
+				break;
 			}
-			// Take the lowest number on the right side that is greater than the
-			// number after the pivot and put it after the pivot.
+		}
+		// If rightSwapIndex is 0, then we already have the largest possible
+		// value.
+		if(rightSwapIndex > 0) {
+			// Swap the two values.
 			// For example:
 			// {1, 2, 5, 4, 3}
 			// Swap 2 and 3 to get
 			// { 1, 3, 5, 4, 2}
-			int temp = nums[pivot - 1];
-			nums[pivot - 1] = nums[firstSwapIndex];
-			nums[firstSwapIndex] = temp;
+			int temp = nums[leftSwapIndex];
+			nums[leftSwapIndex] = nums[rightSwapIndex];
+			nums[rightSwapIndex] = temp;
 		}
-		// Now reverse everything after the swap index.
+		// Now reverse everything after the left swap index.
 		// Continuing from the above example, we would end up with:
 		// { 1, 3, 2, 4, 5}
-		for(int i = 0; i < nums.size() - 1 - pivot; i++) {
-			int sourceIndex = i + pivot;
-			int destIndex = nums.size() - 1 - i;
-			if(sourceIndex >=  destIndex) {
+		int destIndex = nums.size() - 1;
+		int offset = rightSwapIndex == 0 ? 0 : leftSwapIndex + 1;
+		for(int i = 0; i < nums.size() - 1 - offset; i++) {
+			int sourceIndex = i + offset;
+			if(sourceIndex >= destIndex) {
 				break;
 			}
 			int temp = nums[sourceIndex];
 			nums[sourceIndex] = nums[destIndex];
 			nums[destIndex] = temp;
+			destIndex--;
 		}
 	}
 };
 
 int main() {
 	//std::vector<int> nums{1, 3, 4, 2};
-	std::vector<int> nums{2,1,2,2,2,2,2,1};
+	std::vector<int> nums{1,3,2};
 	Solution s;
 	s.nextPermutation(nums);
 	return 0;
