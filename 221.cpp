@@ -51,11 +51,7 @@ private:
 		// We started with the full matrix, so it should get smaller each iteration.
 
 		// First handle all permutations in the X axis.
-		// Do we have room to expand right?
-		if(xStart + xSize < matrix.size()) {
-			maximalSquareRecursive(matrix, xStart, yStart, xSize + 1, ySize, bestSize);
-		}
-		// Can we shrink right?
+		// Can we make X side smaller by shrinking it?
 		if(xSize > 1) {
 			maximalSquareRecursive(matrix, xStart, yStart, xSize - 1, ySize, bestSize);
 		}
@@ -63,16 +59,8 @@ private:
 		if(xStart + xSize < matrix.size()) {
 			maximalSquareRecursive(matrix, xStart + 1, yStart, xSize, ySize, bestSize);
 		}
-		// Can we move the X start left?
-		if(xStart > 0) {
-			maximalSquareRecursive(matrix, xStart - 1, yStart, xSize, ySize, bestSize);
-		}
 
 		// Now handle all permutations in the Y axis.
-		// Can we expand down?
-		if(yStart + ySize < matrix[0].size()) {
-			maximalSquareRecursive(matrix, xStart, yStart, xSize, ySize + 1, bestSize);
-		}
 		// Can we shrink up?
 		if(ySize > 1) {
 			maximalSquareRecursive(matrix, xStart, yStart, xSize, ySize - 1, bestSize);
@@ -80,10 +68,6 @@ private:
 		// Do we have room to move the Y start down?
 		if(yStart + ySize < matrix[0].size()) {
 			maximalSquareRecursive(matrix, xStart, yStart + 1, xSize, ySize, bestSize);
-		}
-		// Can we move the Y start up?
-		if(yStart > 0) {
-			maximalSquareRecursive(matrix, xStart, yStart - 1, xSize, ySize, bestSize);
 		}
 	}
 
