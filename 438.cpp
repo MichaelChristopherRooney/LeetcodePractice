@@ -5,7 +5,8 @@ class Solution {
 public:
 	std::vector<int> findAnagrams(const std::string &s, const std::string &p) {
 		std::vector<int> result;
-		if(p.length() > s.length()) {
+		int sLen = s.length();
+		if(p.length() > sLen) {
 			return result;
 		}
 		// The spec says the characters are lowercase English letters.
@@ -14,31 +15,43 @@ public:
 		for(const auto c : p) {
 			required[c - 'a']++;
 		}
-		int left = 0;
-		int right = 0;
-		while(right < s.length()) {
-			// Move right until we reach the required length.
-			while(right - left < p.length()) {
-				const auto c = s[right];
-				current[c - 'a']++;
-				right++;
-			}
-			bool match = true;
-			for(const auto c : p) {
-				if(required[c - 'a'] != current[c - 'a']) {
-					match = false;
-					break;
-				}
-			}
-			if(match) {
-				result.emplace_back(left);
-			}
-			// Pop the leftmost element.
-			const auto c = s[left];
-			current[c - 'a']--;
-			left++;
+		// Create the initial window.
+		for(int i = 0; i < p.size(); i++) {
+			const auto c = s[i];
+			current[c - 'a']++;
 		}
+		int matches = 0;
+		for(int i = 0; i < 26; i++) {
+			if(required[i] == current[i]) {
+				matches++;
+			}
+		}
+		if(matches == 26) {
+			result.emplace_back(0);
+		}
+		for(int i = p.size(); i < s.length(); i++) {
+			const char left = s[i - p.size()] - 'a';
+			const char right = s[i] - 'a';
+			if(required[right] == current[right]) {
+				matches--;
+			}
+			current[right]++;
+			if(required[right] == current[right]) {
+				matches++;
+			}
+			if(required[left] == current[left]) {
+				matches--;
+			}
+			current[left]--;
+			if(required[left] == current[left]) {
+				matches++;
+			}
+			if(matches == 26) {
+				result.push_back(i - p.size() + 1);
+			}
 
+
+		}
 		return result;
 
 	}
