@@ -5,12 +5,11 @@
 class Solution {
 public:
 	std::vector<std::vector<int>> combinationSum(std::vector<int>& candidates, int target) {
-		std::unordered_set<std::string> alreadySeen;
 		std::ranges::sort(candidates);
 		std::vector<std::vector<int>> result;
 		std::vector<int> currentSet{};
 		for(int i = 0; i < candidates.size(); i++) {
-			recurse(candidates, target, i, 0, result, currentSet, alreadySeen);
+			recurse(candidates, target, i, 0, result, currentSet);
 		}
 		return result;
 	}
@@ -22,8 +21,7 @@ private:
 			int index,
 			int curSum,
 			std::vector<std::vector<int>> &result,
-			std::vector<int> &currentSet,
-			std::unordered_set<std::string> &alreadySeen) {
+			std::vector<int> &currentSet) {
 		curSum += candidates[index];
 		// Before recursing, check if we'll exceed the target. If we do, there's
 		// no point continuing. This works as we've sorted the candidates already.
@@ -38,7 +36,7 @@ private:
 			return;
 		}
 		for(int i = index; i < candidates.size(); i++) {
-			recurse(candidates, target, i, curSum, result, currentSet, alreadySeen);
+			recurse(candidates, target, i, curSum, result, currentSet);
 		}
 		currentSet.pop_back();
 	}
